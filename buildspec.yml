@@ -26,9 +26,9 @@ phases:
   post_build:
      commands:
         - echo "Pushing App 1"
-        - docker push $ECR_BASE/mohan-apache-app1:$IMAGE_TAG
-        - docker push $ECR_BASE/mohan-apache-app1:$COMMIT_TAG
+        - docker push $ECR_BASE/mohan-apache1-app1:$IMAGE_TAG
+        - docker push $ECR_BASE/mohan-apache1-app1:$COMMIT_TAG
         - echo "Pushing App 2"
-        - docker push $ECR_BASE/mohan-apache-app2:$IMAGE_TAG
-        - docker push $ECR_BASE/mohan-apache-app2:$COMMIT_TAG
+        - docker push $ECR_BASE/mohan-apache1-app2:$IMAGE_TAG
+        - docker push $ECR_BASE/mohan-apache1-app2:$COMMIT_TAG
         - echo "Done
