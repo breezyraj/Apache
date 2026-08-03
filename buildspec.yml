@@ -18,13 +18,11 @@ phases:
 
   build:
      commands:
-        # Build App 1
         - echo "Building App 1..."
         - docker build -t mohan-apache-app1:$IMAGE_TAG ./app1
         - docker tag mohan-apache-app1:$IMAGE_TAG $ECR_BASE/mohan-apache-app1:$IMAGE_TAG
         - docker tag mohan-apache-app1:$IMAGE_TAG $ECR_BASE/mohan-apache-app1:$COMMIT_TAG
 
-        # Build App 2
         - echo "Building App 2..."
         - docker build -t mohan-apache-app2:$IMAGE_TAG ./app2
         - docker tag mohan-apache-app2:$IMAGE_TAG $ECR_BASE/mohan-apache-app2:$IMAGE_TAG
@@ -32,12 +30,10 @@ phases:
 
   post_build:
      commands:
-        # Push App 1
         - echo "Pushing App 1 to ECR..."
         - docker push $ECR_BASE/mohan-apache-app1:$IMAGE_TAG
         - docker push $ECR_BASE/mohan-apache-app1:$COMMIT_TAG
 
-        # Push App 2
         - echo "Pushing App 2 to ECR..."
         - docker push $ECR_BASE/mohan-apache-app2:$IMAGE_TAG
         - docker push $ECR_BASE/mohan-apache-app2:$COMMIT_TAG
