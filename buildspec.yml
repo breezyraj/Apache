@@ -31,4 +31,4 @@ phases:
         - echo "Pushing App 2"
         - docker push $ECR_BASE/mohan-apache1-app2:$IMAGE_TAG
         - docker push $ECR_BASE/mohan-apache1-app2:$COMMIT_TAG
-        - echo "Done
+        - echo "Done"
