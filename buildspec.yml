@@ -22,7 +22,6 @@ phases:
         - docker build -t mohan-apache-app1:$IMAGE_TAG ./app1
         - docker tag mohan-apache-app1:$IMAGE_TAG $ECR_BASE/mohan-apache-app1:$IMAGE_TAG
         - docker tag mohan-apache-app1:$IMAGE_TAG $ECR_BASE/mohan-apache-app1:$COMMIT_TAG
-
         - echo "Building App 2..."
         - docker build -t mohan-apache-app2:$IMAGE_TAG ./app2
         - docker tag mohan-apache-app2:$IMAGE_TAG $ECR_BASE/mohan-apache-app2:$IMAGE_TAG
@@ -33,11 +32,9 @@ phases:
         - echo "Pushing App 1 to ECR..."
         - docker push $ECR_BASE/mohan-apache-app1:$IMAGE_TAG
         - docker push $ECR_BASE/mohan-apache-app1:$COMMIT_TAG
-
         - echo "Pushing App 2 to ECR..."
         - docker push $ECR_BASE/mohan-apache-app2:$IMAGE_TAG
         - docker push $ECR_BASE/mohan-apache-app2:$COMMIT_TAG
-
         - echo "Both images pushed successfully!"
         - echo "App 1: $ECR_BASE/mohan-apache-app1:$IMAGE_TAG"
         - echo "App 2: $ECR_BASE/mohan-apache-app2:$IMAGE_TAG"
