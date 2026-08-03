@@ -1,0 +1,45 @@
+version: 0.2
+
+  env:
+    variables:
+      AWS_ACCOUNT_ID: "371320329671"
+      AWS_REGION: "us-east-1"
+      IMAGE_TAG: "latest"
+
+  phases:
+    pre_build:
+      commands:
+        - echo "Logging into ECR..."
+        - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+        - ECR_BASE=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+        - COMMIT_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-7)
+
+    build:
+      commands:
+        # Build App 1
+        - echo "Building App 1..."
+        - docker build -t mohan-apache-app1:$IMAGE_TAG ./app1
+        - docker tag mohan-apache-app1:$IMAGE_TAG $ECR_BASE/mohan-apache-app1:$IMAGE_TAG
+        - docker tag mohan-apache-app1:$IMAGE_TAG $ECR_BASE/mohan-apache-app1:$COMMIT_TAG
+
+        # Build App 2
+        - echo "Building App 2..."
+        - docker build -t mohan-apache-app2:$IMAGE_TAG ./app2
+        - docker tag mohan-apache-app2:$IMAGE_TAG $ECR_BASE/mohan-apache-app2:$IMAGE_TAG
+        - docker tag mohan-apache-app2:$IMAGE_TAG $ECR_BASE/mohan-apache-app2:$COMMIT_TAG
+
+    post_build:
+      commands:
+        # Push App 1
+        - echo "Pushing App 1 to ECR..."
+        - docker push $ECR_BASE/mohan-apache-app1:$IMAGE_TAG
+        - docker push $ECR_BASE/mohan-apache-app1:$COMMIT_TAG
+
+        # Push App 2
+        - echo "Pushing App 2 to ECR..."
+        - docker push $ECR_BASE/mohan-apache-app2:$IMAGE_TAG
+        - docker push $ECR_BASE/mohan-apache-app2:$COMMIT_TAG
+
+        - echo "Both images pushed successfully!"
+        - echo "App 1: $ECR_BASE/mohan-apache-app1:$IMAGE_TAG"
+        - echo "App 2: $ECR_BASE/mohan-apache-app2:$IMAGE_TAG"
