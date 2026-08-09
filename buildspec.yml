@@ -32,3 +32,7 @@ phases:
         - docker push $ECR_BASE/mohan-apache1-app2:$IMAGE_TAG
         - docker push $ECR_BASE/mohan-apache1-app2:$COMMIT_TAG
         - echo "Done"
+  artifacts:
+     files:
+        - appspec.yml
+        - scripts/**/*
