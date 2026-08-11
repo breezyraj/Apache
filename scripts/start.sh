@@ -1,18 +1,28 @@
 #!/bin/bash
 echo "Logging into ECR..."
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 371320329671.dkr.ecr.us-east-1.amazonaws.com
+ECR_BASE="371320329671.dkr.ecr.us-east-1.amazonaws.com"
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $ECR_BASE
 
-echo "Pulling App 1..."
-docker pull 371320329671.dkr.ecr.us-east-1.amazonaws.com/mohan-apache1-app1:latest
+# Start UI FIRST (proxy depends on it)
+echo "Starting UI on port 3000..."
+docker stop ui 2>/dev/null || true
+docker rm ui 2>/dev/null || true
+docker pull $ECR_BASE/my-app-ui:latest
+docker run -d -p 3000:80 --name ui $ECR_BASE/my-app-ui:latest
 
-echo "Pulling App 2..."
-docker pull 371320329671.dkr.ecr.us-east-1.amazonaws.com/mohan-apache1-app2:latest
+# Start Backend SECOND (proxy depends on it)
+echo "Starting Backend on port 8080..."
+docker stop backend 2>/dev/null || true
+docker rm backend 2>/dev/null || true
+docker pull $ECR_BASE/my-app-backend:latest
+docker run -d -p 8080:80 --name backend $ECR_BASE/my-app-backend:latest
 
-echo "Running App 1 on port 8081..."
-docker run -d -p 8081:80 --name app1 371320329671.dkr.ecr.us-east-1.amazonaws.com/mohan-apache1-app1:latest
-
-echo "Running App 2 on port 8082..."
-docker run -d -p 8082:80 --name app2 371320329671.dkr.ecr.us-east-1.amazonaws.com/mohan-apache1-app2:latest
+#Start Proxy LAST (needs UI + Backend running first)
+echo "Starting Proxy on port 80..."
+docker stop proxy 2>/dev/null || true
+docker rm proxy 2>/dev/null || true
+docker pull $ECR_BASE/my-app-proxy:latest
+docker run -d --network host --name proxy $ECR_BASE/my-app-proxy:latest
 
 echo "Containers running!"
 docker ps

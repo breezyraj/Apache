@@ -1,6 +1,6 @@
- version: 0.0
- os: linux
- hooks:
+version: 0.0
+os: linux
+hooks:
     BeforeInstall:
       - location: scripts/stop.sh
         timeout: 60
