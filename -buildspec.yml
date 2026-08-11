@@ -1,0 +1,45 @@
+version: 0.2
+env:
+  variables:
+    AWS_ACCOUNT_ID: "371320329671"
+    AWS_REGION: "us-east-1"
+    IMAGE_TAG: "latest"
+phases:
+  pre_build:
+    commands:
+      - echo "Logging into ECR Public"
+      - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
+      - echo "Logging into private ECR"
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+      - ECR_BASE=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+      - COMMIT_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-7)
+  build:
+    commands:
+      - echo "Building UI"
+      - docker build -t my-app-ui:$IMAGE_TAG ./ui
+      - docker tag my-app-ui:$IMAGE_TAG $ECR_BASE/my-app-ui:$IMAGE_TAG
+      - docker tag my-app-ui:$IMAGE_TAG $ECR_BASE/my-app-ui:$COMMIT_TAG
+      - echo "Building Backend"
+      - docker build -t my-app-backend:$IMAGE_TAG ./backend
+      - docker tag my-app-backend:$IMAGE_TAG $ECR_BASE/my-app-backend:$IMAGE_TAG
+      - docker tag my-app-backend:$IMAGE_TAG $ECR_BASE/my-app-backend:$COMMIT_TAG
+      - echo "Building Proxy"
+      - docker build -t my-app-proxy:$IMAGE_TAG ./proxy
+      - docker tag my-app-proxy:$IMAGE_TAG $ECR_BASE/my-app-proxy:$IMAGE_TAG
+      - docker tag my-app-proxy:$IMAGE_TAG $ECR_BASE/my-app-proxy:$COMMIT_TAG
+  post_build:
+    commands:
+      - echo "Pushing UI"
+      - docker push $ECR_BASE/my-app-ui:$IMAGE_TAG
+      - docker push $ECR_BASE/my-app-ui:$COMMIT_TAG
+      - echo "Pushing Backend"
+      - docker push $ECR_BASE/my-app-backend:$IMAGE_TAG
+      - docker push $ECR_BASE/my-app-backend:$COMMIT_TAG
+      - echo "Pushing Proxy"
+      - docker push $ECR_BASE/my-app-proxy:$IMAGE_TAG
+      - docker push $ECR_BASE/my-app-proxy:$COMMIT_TAG
+      - echo "Done"
+artifacts:
+  files:
+    - appspec.yml
+    - scripts/**/*
